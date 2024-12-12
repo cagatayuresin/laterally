@@ -1,0 +1,70 @@
+{% extends "components/base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-one-third">
+        <h1 class="title has-text-centered">Kayıt Ol</h1>
+        <form method="post">
+          {% csrf_token %}
+          <div class="field">
+            <label class="label" for="username">Kullanıcı Adı</label>
+            <div class="control has-icons-left">
+              <input class="input" type="text" name="username" id="username" placeholder="Kullanıcı adınız" required>
+              <span class="icon is-small is-left">
+                <i class="fas fa-user"></i>
+              </span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label" for="email">E-Posta</label>
+            <div class="control has-icons-left">
+              <input class="input" type="email" name="email" id="email" placeholder="E-Posta adresiniz" required>
+              <span class="icon is-small is-left">
+                <i class="fas fa-envelope"></i>
+              </span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label" for="password">Şifre</label>
+            <div class="control has-icons-left">
+              <input class="input" type="password" name="password" id="password" placeholder="Şifreniz" required>
+              <span class="icon is-small is-left">
+                <i class="fas fa-lock"></i>
+              </span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label" for="password2">Şifre (Tekrar)</label>
+            <div class="control has-icons-left">
+              <input class="input" type="password" name="password2" id="password2" placeholder="Şifrenizi tekrar girin" required>
+              <span class="icon is-small is-left">
+                <i class="fas fa-lock"></i>
+              </span>
+            </div>
+          </div>
+
+          {% if error_message %}
+          <p class="help is-danger">{{ error_message }}</p>
+          {% endif %}
+
+          <div class="field">
+            <div class="control">
+              <button class="button is-primary is-fullwidth" type="submit">Kayıt Ol</button>
+            </div>
+          </div>
+        </form>
+
+        <div class="has-text-centered" style="margin-top: 1rem;">
+          <a href="{% url 'login' %}">Giriş Yap</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

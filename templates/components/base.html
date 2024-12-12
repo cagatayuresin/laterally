@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}  {% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+    <script src="https://kit.fontawesome.com/4ed1a77e89.js" crossorigin="anonymous"></script>
+    {% block extra_head %}
+    {% endblock %}
+</head>
+<body>
+    <!-- Navbar -->
+    {% include 'components/navbar.html' %}
+    <!-- Navbar -->
+      
+    <!-- Main Content -->
+    <div class="container" style="margin-top: 20px;">
+        {% block content %}
+        <!-- Content will be injected here -->
+        {% endblock %}
+    </div>
+    
+    <!-- Footer -->
+    {% include 'components/footer.html' %}
+    <!-- Footer -->
+
+    {% block extra_scripts %}
+    {% endblock %}
+</body>
+</html>

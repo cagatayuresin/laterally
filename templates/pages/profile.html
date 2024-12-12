@@ -1,0 +1,24 @@
+{% extends "components/base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-half">
+        <h1 class="title has-text-centered">Profil Bilgilerim</h1>
+        
+        <div class="box">
+          <p><strong>Kullanıcı Adı:</strong> {{ user.username }}</p>
+          <p><strong>E-Posta:</strong> {{ user.email }}</p>
+          <!-- İsterseniz başka profil bilgileri de ekleyebilirsiniz. -->
+        </div>
+        
+        <div class="has-text-centered" style="margin-top: 1rem;">
+          <a class="button is-primary" href="{% url 'update-profile' %}">Profili Güncelle</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

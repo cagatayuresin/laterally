@@ -1,0 +1,48 @@
+{% extends "components/base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-half">
+        <h1 class="title has-text-centered">Profilini Güncelle</h1>
+        <form method="post">
+          {% csrf_token %}
+          <div class="field">
+            <label class="label" for="username">Kullanıcı Adı</label>
+            <div class="control has-icons-left">
+              <input class="input" type="text" name="username" id="username" value="{{ user.username }}" required>
+              <span class="icon is-small is-left">
+                <i class="fas fa-user"></i>
+              </span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label" for="email">E-Posta</label>
+            <div class="control has-icons-left">
+              <input class="input" type="email" name="email" id="email" value="{{ user.email }}" required>
+              <span class="icon is-small is-left">
+                <i class="fas fa-envelope"></i>
+              </span>
+            </div>
+          </div>
+          
+          <!-- Gerek duyulursa başka alanlar da ekleyebilirsiniz. Örneğin profil resmi ya da telefon numarası -->
+          
+          {% if error_message %}
+          <p class="help is-danger">{{ error_message }}</p>
+          {% endif %}
+
+          <div class="field">
+            <div class="control">
+              <button class="button is-success is-fullwidth" type="submit">Kaydet</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

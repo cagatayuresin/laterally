@@ -1,0 +1,57 @@
+{% extends "components/base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <h1 class="title has-text-centered">İletişim</h1>
+    <div class="columns is-centered">
+      <div class="column is-half">
+        <form method="post">
+          {% csrf_token %}
+          <div class="field">
+            <label class="label" for="name">Adınız</label>
+            <div class="control has-icons-left">
+              <input class="input" type="text" name="name" id="name" placeholder="Adınız" required>
+              <span class="icon is-small is-left">
+                <i class="fas fa-user"></i>
+              </span>
+            </div>
+          </div>
+          
+          <div class="field">
+            <label class="label" for="email">E-Posta</label>
+            <div class="control has-icons-left">
+              <input class="input" type="email" name="email" id="email" placeholder="E-Posta adresiniz" required>
+              <span class="icon is-small is-left">
+                <i class="fas fa-envelope"></i>
+              </span>
+            </div>
+          </div>
+          
+          <div class="field">
+            <label class="label" for="message">Mesajınız</label>
+            <div class="control">
+              <textarea class="textarea" name="message" id="message" placeholder="Buraya mesajınızı yazınız..." required></textarea>
+            </div>
+          </div>
+          
+          {% if error_message %}
+          <p class="help is-danger">{{ error_message }}</p>
+          {% endif %}
+          
+          {% if success_message %}
+          <p class="help is-success">{{ success_message }}</p>
+          {% endif %}
+
+          <div class="field">
+            <div class="control">
+              <button class="button is-primary is-fullwidth" type="submit">Gönder</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
