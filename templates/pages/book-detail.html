@@ -1,0 +1,41 @@
+{% extends "components/base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="columns">
+      <div class="column is-one-third">
+        <figure class="image is-4by3" style="max-width: 300px; margin: 0 auto;">
+          <img src="{{ book.cover_image.url }}" alt="{{ book.title }}">
+        </figure>
+      </div>
+      <div class="column">
+        <h1 class="title">{{ book.title }}</h1>
+        <h2 class="subtitle">
+          Yazar: 
+          <a href="{% url 'author-detail' book.author.id %}">{{ book.author.name }}</a>
+        </h2>
+        <p><strong>Yayıncı:</strong> <a href="{% url 'publisher-detail' book.publisher.id %}">{{ book.publisher.name }}</a></p>
+        <p><strong>Yıl:</strong> {{ book.published_year }}</p>
+        <p><strong>Dil:</strong> {{ book.language }}</p>
+        <p><strong>ISBN:</strong> {{ book.isbn }}</p>
+        <p><strong>Tür:</strong> {{ book.genre }}</p>
+      </div>
+    </div>
+
+    <hr>
+      <h2 class="title is-4">Özet</h2>
+    <div class="content">
+      <p>{{ book.synopsis }}</p>
+    </div>
+
+    <h2 class="title is-4">Hakkında</h2>
+    <div class="content">
+      <p>{{ book.short_description }}</p>
+    </div>
+
+    
+  </div>
+</section>
+{% endblock %}

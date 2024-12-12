@@ -1,8 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from .models.physical_copy import PhysicalCopy
 from .models.book import Book
 from .models.publisher import Publisher
 from .models.borrow import Borrow
+from .models.author import Author
 from rest_framework import generics
 from .serializers import BookSerializer, PublisherSerializer, BorrowSerializer
 
@@ -55,10 +56,12 @@ def update_profile(request):
     return render(request, 'pages/update-profile.html')
 
 def books(request):
-    return render(request, 'pages/books.html')
+    books = Book.objects.order_by('?')[:20]
+    return render(request, 'pages/books.html', {'books': books})
 
-def book_detail(request):
-    return render(request, 'pages/book-detail.html')
+def book_detail(request, pk):
+    book = get_object_or_404(Book, id=pk)
+    return render(request, 'pages/book-detail.html' , {'book': book})
 
 def borrow(request):
     return render(request, 'pages/borrow.html')
@@ -69,14 +72,20 @@ def return_book(request):
 def publishers(request):
     return render(request, 'pages/publishers.html')
 
-def publisher_detail(request):
+def publisher_detail(request, pk):
     return render(request, 'pages/publisher-detail.html')
 
 def authors(request):
-    return render(request, 'pages/authors.html')
+    authors = Author.objects.order_by('?')[:20]
+    return render(request, 'pages/authors.html', {'authors': authors})
 
-def author_detail(request):
-    return render(request, 'pages/author-detail.html')
+def author_detail(request, pk):
+    author = get_object_or_404(Author, id=pk)
+    author_books = Book.objects.filter(author=author)
+    return render(request, 'pages/author-detail.html', {
+        'author': author,
+        'author_books': author_books
+    })
 
 def genres(request):
     return render(request, 'pages/genres.html')

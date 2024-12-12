@@ -1,0 +1,15 @@
+<div class="card" style="width: 250px;">
+  <div class="card-image">
+    <figure class="image is-1by1">
+      <img src="{{ author.photo.url }}" alt="{{ author.name }}">
+    </figure>
+  </div>
+  <div class="card-content">
+    <p class="title is-6">
+      <a href="{% url 'author-detail' author.id %}">{{ author.name }}</a>
+    </p>
+    <div class="content">
+      {{ author.bio|truncatewords:20 }}
+    </div>
+  </div>
+</div>

@@ -1,10 +1,11 @@
 from django.db import models
 from .publisher import Publisher
+from .author import Author
 
 
 class Book(models.Model):
     title = models.CharField(max_length=255)
-    author = models.CharField(max_length=255)
+    author = models.ForeignKey(Author, related_name='books', on_delete=models.CASCADE)
     published_year = models.IntegerField()
     language = models.CharField(max_length=50)
     isbn = models.CharField(max_length=13, unique=True)

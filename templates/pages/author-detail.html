@@ -1,0 +1,35 @@
+{% extends "components/base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="columns">
+      <div class="column is-one-quarter">
+        <figure class="image is-1by1" style="max-width: 300px; margin: 0 auto;">
+          <img src="{{ author.photo.url }}" alt="{{ author.name }}">
+        </figure>
+      </div>
+      <div class="column">
+        <h1 class="title">{{ author.name }}</h1>
+        <div class="content">
+          <p>{{ author.bio }}</p>
+        </div>
+      </div>
+    </div>
+
+    <hr>
+
+    <h2 class="title is-4">Bu yazarın kitapları</h2>
+    <div class="columns is-multiline">
+      {% for book in author_books %}
+      <div class="column is-one-fifth">
+        {% include "components/book-card.html" %}
+      </div>
+      {% empty %}
+      <p>Bu yazarın sistemde kayıtlı kitabı bulunmamaktadır.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

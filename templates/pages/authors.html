@@ -1,0 +1,17 @@
+{% extends "components/base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <h1 class="title has-text-centered">Yazarlar</h1>
+    <div class="columns is-multiline">
+      {% for author in authors %}
+      <div class="column is-one-fifth">
+        {% include "components/author-card.html" %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
