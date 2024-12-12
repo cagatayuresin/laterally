@@ -1,0 +1,10 @@
+<div class="card" style="width: 250px;">
+  <div class="card-content">
+    <p class="title is-6">
+      <a href="{% url 'publisher-detail' publisher.id %}">{{ publisher.name }}</a>
+    </p>
+    <div class="content">
+      {{ publisher.address|truncatewords:10 }}
+    </div>
+  </div>
+</div>

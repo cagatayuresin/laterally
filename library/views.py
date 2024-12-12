@@ -1,4 +1,7 @@
 from django.shortcuts import render, get_object_or_404
+from django.contrib.auth import logout, authenticate, login
+from django.shortcuts import redirect
+from django.contrib.auth.models import User
 from .models.physical_copy import PhysicalCopy
 from .models.book import Book
 from .models.publisher import Publisher
@@ -6,6 +9,12 @@ from .models.borrow import Borrow
 from .models.author import Author
 from rest_framework import generics
 from .serializers import BookSerializer, PublisherSerializer, BorrowSerializer
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
+from django.conf import settings
+from django.contrib.auth import get_user_model
 
 
 # Yayıncıların ve kitapların listelenmesi için Görünümler
@@ -37,17 +46,177 @@ class ReturnBookView(generics.UpdateAPIView):
 def dashboard(request):
     return render(request, 'components/base.html')
 
-def login(request):
-    return render(request, 'pages/login.html')
+def user_login(request):
+    error_message = None
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '').strip()
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('dashboard')
+        else:
+            error_message = "Kullanıcı adı veya şifre hatalı."
+    return render(request, 'pages/login.html', {'error_message': error_message})
 
 def change_password(request):
     return render(request, 'pages/change-password.html')
 
-def logout(request):
-    return render(request, 'pages/logout.html')
+def logout_user(request):
+    logout(request)
+    return redirect('dashboard')
+
 
 def signup(request):
-    return render(request, 'pages/signup.html')
+    error_message = None
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '').strip()
+        password2 = request.POST.get('password2', '').strip()
+
+        if not username or not email or not password or not password2:
+            error_message = "Lütfen tüm alanları doldurun."
+        elif password != password2:
+            error_message = "Şifreler eşleşmiyor."
+        elif User.objects.filter(username=username).exists():
+            error_message = "Bu kullanıcı adı zaten kayıtlı."
+        elif User.objects.filter(email=email).exists():
+            error_message = "Bu e-posta adresi zaten kullanılıyor."
+        else:
+            # Kullanıcıyı aktif etmeden oluştur
+            user = User.objects.create_user(username=username, email=email, password=password, is_active=False)
+
+            # Aktivasyon maili için token üret
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+            # Aktivasyon linkini oluştur
+            # Aşağıdaki linki kendi domaininize göre düzenleyin.
+            # Örneğin: http://localhost:8000/activate/<uid>/<token>/
+            activation_link = f"http://127.0.0.1:8000/activate/{uid}/{token}/"
+
+            subject = "Hesap Aktivasyonunuz"
+            message = f"Merhaba {user.username},\n\nHesabınızı aktif etmek için aşağıdaki linke tıklayın:\n{activation_link}\n\nTeşekkürler!"
+
+            # E-posta gönderimi
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [email],
+                fail_silently=False,
+            )
+
+            # Kullanıcıyı direkt giriş yaptırmak yerine aktifleşmesini bekliyoruz.
+            return render(request, 'pages/signup-confirm.html', {'email': email})
+
+    return render(request, 'pages/signup.html', {'error_message': error_message})
+
+
+def activate(request, uidb64, token):
+    User = get_user_model()
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        # Kullanıcıyı aktif hale getir
+        user.is_active = True
+        user.save()
+        # Kullanıcıyı login yapabilirsiniz
+        login(request, user)
+        return redirect('dashboard')
+    else:
+        return render(request, 'pages/activation-invalid.html')
+
+
+def forgot_password(request):
+    success_message = None
+    error_message = None
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        if not email:
+            error_message = "Lütfen bir e-posta adresi girin."
+        else:
+            try:
+                user = User.objects.get(email=email)
+            except User.DoesNotExist:
+                error_message = "Bu e-posta adresine ait bir kullanıcı bulunamadı."
+            else:
+                # Kullanıcı bulundu, token üret ve mail gönder
+                token = default_token_generator.make_token(user)
+                uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+                # Bu linki kendi domaininize göre ayarlayın
+                reset_link = f"http://127.0.0.1:8000/reset-password/{uid}/{token}/"
+
+                subject = "Şifre Sıfırlama İsteği"
+                message = (
+                    f"Merhaba {user.username},\n\n"
+                    f"Aşağıdaki linke tıklayarak şifrenizi sıfırlayabilirsiniz:\n{reset_link}\n\n"
+                    f"Teşekkürler!"
+                )
+
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [email],
+                    fail_silently=False,
+                )
+
+                success_message = "Şifre sıfırlama bağlantısı e-posta adresinize gönderildi. Lütfen e-postanızı kontrol edin."
+
+    return render(request, 'pages/forgot-password.html', {
+        'success_message': success_message,
+        'error_message': error_message
+    })
+
+
+def reset_password_view(request, uidb64, token):
+    error_message = None
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    # Token kontrolü
+    if user is None or not default_token_generator.check_token(user, token):
+        # Token geçersizse veya kullanıcı yoksa hata döndür
+        return render(request, 'pages/activation-invalid.html', {
+            'error_message': 'Geçersiz ya da süresi geçmiş bir bağlantı kullanıyorsunuz.'
+        })
+
+    # GET isteğinde formu göster
+    if request.method == 'GET':
+        return render(request, 'pages/reset-password.html', {
+            'error_message': error_message
+        })
+
+    # POST isteğinde yeni şifreleri al
+    if request.method == 'POST':
+        new_password = request.POST.get('new_password', '').strip()
+        new_password2 = request.POST.get('new_password2', '').strip()
+
+        if not new_password or not new_password2:
+            error_message = "Lütfen tüm alanları doldurun."
+        elif new_password != new_password2:
+            error_message = "Şifreler eşleşmiyor."
+        else:
+            # Şifreyi güncelle
+            user.set_password(new_password)
+            user.save()
+            # Kullanıcıyı giriş yaptırmak isterseniz:
+            login(request, user)
+            return redirect('home')  # Yeni şifre ayarlandıktan sonra yönlendirme
+
+        return render(request, 'pages/reset-password.html', {
+            'error_message': error_message
+        })
 
 def profile(request):
     return render(request, 'pages/profile.html')
@@ -70,10 +239,16 @@ def return_book(request):
     return render(request, 'pages/return-book.html')
 
 def publishers(request):
-    return render(request, 'pages/publishers.html')
+    publishers = Publisher.objects.order_by('?')[:20]
+    return render(request, 'pages/publishers.html', {'publishers': publishers})
 
 def publisher_detail(request, pk):
-    return render(request, 'pages/publisher-detail.html')
+    publisher = get_object_or_404(Publisher, id=pk)
+    publisher_books = Book.objects.filter(publisher=publisher)
+    return render(request, 'pages/publisher-detail.html', {
+        'publisher': publisher,
+        'publisher_books': publisher_books
+    })
 
 def authors(request):
     authors = Author.objects.order_by('?')[:20]

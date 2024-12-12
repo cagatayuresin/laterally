@@ -7,9 +7,9 @@
   <div class="card-content">
       <a href="{% url 'book-detail' book.id %}"><p class="title is-primary is-5 mb-2">{{ book.title }}</p></a>
     <a href="{% url 'author-detail' book.author.id %}"><p class="subtitle is-info is-6">{{ book.author }}</p></a>
-    
+
     <div class="content">
-      {{ book.synopsis|truncatewords:20 }}
+      {{ book.synopsis|truncatewords:10 }}
       <br>
       <strong>Yıl:</strong> {{ book.published_year }}
     </div>

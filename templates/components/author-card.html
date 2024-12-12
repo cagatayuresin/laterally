@@ -9,7 +9,7 @@
       <a href="{% url 'author-detail' author.id %}">{{ author.name }}</a>
     </p>
     <div class="content">
-      {{ author.bio|truncatewords:20 }}
+      {{ author.bio|truncatewords:10 }}
     </div>
   </div>
 </div>
