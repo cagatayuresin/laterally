@@ -1,0 +1,18 @@
+{% extends "components/base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <h1 class="title">Kopyayı Ödünç Al</h1>
+    <div class="box">
+      <p>{{ copy.book.title }} kitabının kopyasını ödünç almak istediğinize emin misiniz?</p>
+      <form method="post">
+        {% csrf_token %}
+        <button class="button is-primary" type="submit">Evet, Ödünç Al</button>
+        <a href="{% url 'book-detail' copy.book.id %}" class="button is-light">Hayır, Vazgeç</a>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,3 +1,4 @@
+<!-- templates/book_detail.html -->
 {% extends "components/base.html" %}
 {% load static %}
 
@@ -25,7 +26,8 @@
     </div>
 
     <hr>
-      <h2 class="title is-4">Özet</h2>
+
+    <h2 class="title is-4">Özet</h2>
     <div class="content">
       <p>{{ book.synopsis }}</p>
     </div>
@@ -35,7 +37,26 @@
       <p>{{ book.short_description }}</p>
     </div>
 
-    
+    <hr>
+
+    <h2 class="title is-4">Fiziksel Kopyalar</h2>
+    <div class="columns is-multiline">
+      {% for copy in book.physical_copies.all %}
+      <div class="column is-one-third">
+        <div class="card">
+          <div class="card-content">
+            {% if copy.available %}
+              <p class="has-text-success">Müsait</p>
+              <a href="{% url 'borrow-copy' copy.id %}" class="button is-link is-small">Ödünç Al</a>
+            {% else %}
+              <p class="has-text-danger">Müsait Değil</p>
+              <p>İade Tarihi: {{ copy.due_date }}</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
   </div>
 </section>
 {% endblock %}

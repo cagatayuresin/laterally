@@ -1,0 +1,14 @@
+{% extends "components/base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="notification is-danger">
+      <button class="delete"></button>
+      {{ message }}
+    </div>
+    <a href="{% url 'dashboard' %}" class="button is-link">Geri Dön</a>
+  </div>
+</section>
+{% endblock %}

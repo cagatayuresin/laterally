@@ -2,8 +2,8 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib.auth import logout, authenticate, login
 from django.shortcuts import redirect
 from django.contrib.auth.models import User
-from .models.physical_copy import PhysicalCopy
 from .models.book import Book
+from .models.physical_copy import PhysicalCopy
 from .models.publisher import Publisher
 from .models.borrow import Borrow
 from .models.author import Author
@@ -15,6 +15,10 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
+from datetime import timedelta
+from .forms import SearchForm
 
 
 # Yayıncıların ve kitapların listelenmesi için Görünümler
@@ -43,8 +47,27 @@ class ReturnBookView(generics.UpdateAPIView):
         instance = serializer.save()
         instance.return_book()
 
+
+def search(request):
+    form = SearchForm(request.GET or None)
+    context = {
+        'form': form,
+    }
+
+    if form.is_valid():
+        query = form.cleaned_data.get('query')
+        if query:
+            books = Book.objects.filter(title__icontains=query)
+            authors = Author.objects.filter(name__icontains=query)
+            context['books'] = books
+            context['authors'] = authors
+
+    return render(request, 'components/search-component.html', context)
+
+@login_required
 def dashboard(request):
-    return render(request, 'components/base.html')
+    borrowed_copies = request.user.borrowed_copies.filter(return_date__isnull=True)
+    return render(request, 'pages/dashboard.html', {'borrowed_copies': borrowed_copies})
 
 def user_login(request):
     error_message = None
@@ -94,7 +117,7 @@ def signup(request):
             # Aktivasyon linkini oluştur
             # Aşağıdaki linki kendi domaininize göre düzenleyin.
             # Örneğin: http://localhost:8000/activate/<uid>/<token>/
-            activation_link = f"http://127.0.0.1:8000/activate/{uid}/{token}/"
+            activation_link = f"{settings.HOST}/activate/{uid}/{token}/"
 
             subject = "Hesap Aktivasyonunuz"
             message = f"Merhaba {user.username},\n\nHesabınızı aktif etmek için aşağıdaki linke tıklayın:\n{activation_link}\n\nTeşekkürler!"
@@ -151,7 +174,7 @@ def forgot_password(request):
                 uid = urlsafe_base64_encode(force_bytes(user.pk))
 
                 # Bu linki kendi domaininize göre ayarlayın
-                reset_link = f"http://127.0.0.1:8000/reset-password/{uid}/{token}/"
+                reset_link = f"{settings.HOST}/reset-password/{uid}/{token}/"
 
                 subject = "Şifre Sıfırlama İsteği"
                 message = (
@@ -212,7 +235,7 @@ def reset_password_view(request, uidb64, token):
             user.save()
             # Kullanıcıyı giriş yaptırmak isterseniz:
             login(request, user)
-            return redirect('home')  # Yeni şifre ayarlandıktan sonra yönlendirme
+            return redirect('dashboard')  # Yeni şifre ayarlandıktan sonra yönlendirme
 
         return render(request, 'pages/reset-password.html', {
             'error_message': error_message
@@ -232,11 +255,38 @@ def book_detail(request, pk):
     book = get_object_or_404(Book, id=pk)
     return render(request, 'pages/book-detail.html' , {'book': book})
 
-def borrow(request):
-    return render(request, 'pages/borrow.html')
+@login_required
+def borrow_copy(request, pk):
+    copy = get_object_or_404(PhysicalCopy, id=pk)
 
-def return_book(request):
-    return render(request, 'pages/return-book.html')
+    if not copy.available:
+        # Kopya müsait değil, kullanıcıyı bilgilendir
+        return render(request, 'pages/borrow-error.html', {'message': 'Bu kopya şu anda müsait değil.'})
+
+    if request.method == 'POST':
+        # Ödünç alma işlemini gerçekleştir
+        copy.available = False
+        copy.borrowed_by = request.user
+        copy.due_date = timezone.now().date() + timedelta(days=14)  # Örneğin 14 gün sonra iade
+        copy.save()
+        return redirect('dashboard')  # Ödünç alındıktan sonra yönlendirilecek sayfa
+
+    # GET isteğinde kullanıcıdan onay al
+    return render(request, 'pages/borrow-confirm.html', {'copy': copy})
+
+
+@login_required
+def return_copy(request, pk):
+    copy = get_object_or_404(PhysicalCopy, id=pk, borrowed_by=request.user)
+
+    if request.method == 'POST':
+        copy.available = True
+        copy.borrowed_by = None
+        copy.due_date = None
+        copy.save()
+        return redirect('dashboard')
+
+    return render(request, 'pages/return-confirm.html', {'copy': copy})
 
 def publishers(request):
     publishers = Publisher.objects.order_by('?')[:20]
@@ -261,12 +311,6 @@ def author_detail(request, pk):
         'author': author,
         'author_books': author_books
     })
-
-def genres(request):
-    return render(request, 'pages/genres.html')
-
-def genre_detail(request):
-    return render(request, 'pages/genre-detail.html')
 
 def search(request):
     return render(request, 'pages/search.html')

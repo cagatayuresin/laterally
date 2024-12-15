@@ -1,9 +1,14 @@
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-SECRET_KEY = 'django-insecure-1gj2b#-msx_idctksa!ax2l2+3gk2wgugq6_akxpp!o9oa9h4j'
-DEBUG = True
+
+SECRET_KEY = os.environ.get('SECRET_KEY')
+DEBUG = os.environ.get('DEBUG')
 ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -15,6 +20,8 @@ INSTALLED_APPS = [
     "library.apps.LibraryConfig",
     'rest_framework',
     'drf_yasg',
+    'widget_tweaks',
+    'django_extensions',
 ]
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
@@ -46,14 +53,26 @@ TEMPLATES = [
     },
 ]
 WSGI_APPLICATION = 'laterally.wsgi.application'
+ASGI_APPLICATION = 'laterally.asgi.application'
 MEDIA_URL = '/media/'  # Medya dosyalarına erişim yolu
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Dosyaların kaydedileceği fiziksel dizin
+LOGIN_URL = 'login'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.environ.get('POSTGRES_DB'),
+#         'USER': os.environ.get('POSTGRES_USER'),
+#         'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+#         'HOST': os.environ.get('POSTGRES_HOST'),
+#         'PORT': os.environ.get('POSTGRES_PORT'),
+#     }
+# }
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -74,11 +93,11 @@ USE_I18N = True
 USE_TZ = True
 STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-DEFAULT_FROM_EMAIL = 'laterally@cagatayuresin.com'
-EMAIL_HOST = 'smtp-relay.brevo.com'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = '7f3b42001@smtp-brevo.com'
-EMAIL_HOST_PASSWORD = 'wcTU03KXq7QJmHkA'
-EMAIL_USE_TLS = True
-# EMAIL_USE_SSL = True
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
+EMAIL_HOST = os.environ.get('EMAIL_HOST')
+EMAIL_PORT = os.environ.get('EMAIL_PORT')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS')
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+HOST = os.environ.get('HOST')

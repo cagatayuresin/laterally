@@ -1,0 +1,18 @@
+{% extends "components/base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <h1 class="title">Kitabı İade Et</h1>
+    <div class="box">
+      <p>{{ copy.book.title }} kitabını iade etmek istediğinize emin misiniz?</p>
+      <form method="post">
+        {% csrf_token %}
+        <button class="button is-danger" type="submit">Evet, İade Et</button>
+        <a href="{% url 'dashboard' %}" class="button is-light">Hayır, Vazgeç</a>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

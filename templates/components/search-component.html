@@ -1,0 +1,14 @@
+<!-- templates/components/search_component.html -->
+
+<div class="section">
+    <div class="container">
+        <form method="get" action="{% url 'search' %}">
+            {% csrf_token %}
+            {{ form }}
+            <button type="submit" class="button is-primary">Ara</button>
+        </form>
+
+
+        <!-- Ek içerik ve listeler -->
+    </div>
+</div>
