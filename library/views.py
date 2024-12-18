@@ -19,6 +19,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from datetime import timedelta
 from .forms import SearchForm
+from django.utils.html import escape
 
 
 # Yayıncıların ve kitapların listelenmesi için Görünümler
@@ -47,12 +48,10 @@ class ReturnBookView(generics.UpdateAPIView):
         instance = serializer.save()
         instance.return_book()
 
-
 def search(request):
     query = request.GET.get('query', '')
     books = Book.objects.filter(title__icontains=query) if query else []
     authors = Author.objects.filter(name__icontains=query) if query else []
-    print(books, authors)
 
     return render(request, 'pages/search.html', {
         'query': query,
@@ -307,9 +306,6 @@ def author_detail(request, pk):
         'author': author,
         'author_books': author_books
     })
-
-def search(request):
-    return render(request, 'pages/search.html')
 
 def contact(request):
     return render(request, 'pages/contact.html')
