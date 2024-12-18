@@ -49,20 +49,16 @@ class ReturnBookView(generics.UpdateAPIView):
 
 
 def search(request):
-    form = SearchForm(request.GET or None)
-    context = {
-        'form': form,
-    }
+    query = request.GET.get('query', '')
+    books = Book.objects.filter(title__icontains=query) if query else []
+    authors = Author.objects.filter(name__icontains=query) if query else []
+    print(books, authors)
 
-    if form.is_valid():
-        query = form.cleaned_data.get('query')
-        if query:
-            books = Book.objects.filter(title__icontains=query)
-            authors = Author.objects.filter(name__icontains=query)
-            context['books'] = books
-            context['authors'] = authors
-
-    return render(request, 'components/search-component.html', context)
+    return render(request, 'pages/search.html', {
+        'query': query,
+        'books': books,
+        'authors': authors,
+    })
 
 @login_required
 def dashboard(request):

@@ -1,14 +1,13 @@
-<!-- templates/components/search_component.html -->
-
-<div class="section">
-    <div class="container">
-        <form method="get" action="{% url 'search' %}">
-            {% csrf_token %}
-            {{ form }}
-            <button type="submit" class="button is-primary">Ara</button>
-        </form>
-
-
-        <!-- Ek içerik ve listeler -->
+<!-- search-component.html -->
+<form action="{% url 'search' %}" method="get">
+  <div class="field has-addons mb-5">
+    <div class="control is-expanded">
+      <input class="input" type="text" name="query" placeholder="Ara..." value="{{ query }}">
     </div>
-</div>
+    <div class="control">
+      <button class="button is-info" type="submit">
+        Ara
+      </button>
+    </div>
+  </div>
+</form>
