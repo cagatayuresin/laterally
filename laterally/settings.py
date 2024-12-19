@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY')
 DEBUG = os.environ.get('DEBUG')
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['laterally.cagatayuresin.com', '127.0.0.1', 'localhost', "0.0.0.0"]
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',

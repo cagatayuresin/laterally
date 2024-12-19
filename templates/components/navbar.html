@@ -7,37 +7,21 @@
       <span aria-hidden="true"></span>
       <span aria-hidden="true"></span>
       <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
     </a>
   </div>
 
   <div id="navbarBasicExample" class="navbar-menu">
     <div class="navbar-start">
-      <a class="navbar-item" href="{% url 'dashboard' %}">
-        Anasayfa
-      </a>
-
-      <a class="navbar-item" href="{% url 'books' %}">
-        Kitaplar
-      </a>
-      <a class="navbar-item" href="{% url 'authors' %}">
-        Yazarlar
-      </a>
-        <a class="navbar-item" href="{% url 'publishers' %}">
-            Yayınevleri
-        </a>
+      <a class="navbar-item" href="{% url 'dashboard' %}">Anasayfa</a>
+      <a class="navbar-item" href="{% url 'books' %}">Kitaplar</a>
+      <a class="navbar-item" href="{% url 'authors' %}">Yazarlar</a>
+      <a class="navbar-item" href="{% url 'publishers' %}">Yayınevleri</a>
 
       <div class="navbar-item has-dropdown is-hoverable">
-        <a class="navbar-link">
-          Daha Fazla
-        </a>
+        <a class="navbar-link">Daha Fazla</a>
         <div class="navbar-dropdown">
-          <a class="navbar-item" href="{% url 'about' %}">
-            Hakkımızda
-          </a>
-          <a class="navbar-item" href="{% url 'contact' %}">
-            İletişim
-          </a>
+          <a class="navbar-item" href="{% url 'about' %}">Hakkımızda</a>
+          <a class="navbar-item" href="{% url 'contact' %}">İletişim</a>
         </div>
       </div>
     </div>
@@ -46,22 +30,27 @@
       <div class="navbar-item">
         <div class="buttons">
           {% if user.is_authenticated %}
-            <a class="button is-primary" href="{% url 'profile' %}">
-              Profil
-            </a>
-            <a class="button is-light" href="{% url 'logout' %}">
-              Çıkış Yap
-            </a>
+            <a class="button is-primary" href="{% url 'profile' %}">Profil</a>
+            <a class="button is-light" href="{% url 'logout' %}">Çıkış Yap</a>
           {% else %}
-            <a class="button is-primary" href="{% url 'signup' %}">
-              <strong>Kayıt Ol</strong>
-            </a>
-            <a class="button is-light" href="{% url 'login' %}">
-              Giriş Yap
-            </a>
+            <a class="button is-primary" href="{% url 'signup' %}"><strong>Kayıt Ol</strong></a>
+            <a class="button is-light" href="{% url 'login' %}">Giriş Yap</a>
           {% endif %}
         </div>
       </div>
     </div>
   </div>
 </nav>
+
+<!-- Burger Menü Script -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const burger = document.querySelector('.navbar-burger');
+  const menu = document.getElementById('navbarBasicExample');
+
+  burger.addEventListener('click', () => {
+    burger.classList.toggle('is-active');
+    menu.classList.toggle('is-active');
+  });
+});
+</script>
